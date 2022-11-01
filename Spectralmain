@@ -36,3 +36,9 @@ set(gca, 'fontsize', 14)
  figname = strcat(dataname, 'Step=', num2str(step), 'nframe=',num2str( nframe ),'.png')
 print('-dpng', '-r300', figname)
 %%%%%%%%%%%%%%%%%%%%%%% /PLOT INI
+
+% 1st step
+[ROInow] = ROI_mode (mu_array, max_mu, mode_ind, step, addstep, noise);
+%ROI1 = ROInow;
+max_mu_array = [max_mu_array max_mu]
+IH = [IH min(ROInow) max(ROInow)]
