@@ -1,46 +1,50 @@
 % Created: 2022-09-28
-% Calculation noise of histogram
-% 2022-10-13 NBins
-function [HistdiffSpectrum, Edges, noise] = HistNoise (input1, level, NBins)
-% input1 = H2Ospectrum;
-% input1 = mu_array;
-diffSpectrum = diff(input1);
+% 2022-12-01
+function [HistdiffSpectrum, Edges, noise] = HistNoise (input, level, NBins)
+% input - array of frequency (spectrum)
+% level - parameter 0 < level < 1: level = max in histogram bin / sum (all bins)
+% NBins - count bins in histogram
+%
+% Diff spectrum 
+diffSpectrum = diff(input);
+% 
 EdgesMed = median( diffSpectrum );
+%
 EdgeStd = std( diffSpectrum );
 % 2022-09-28
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% find outliers and zero it
 [aa, aa_ind] = find( abs(diffSpectrum) > 3 * EdgeStd );
 diffSpectrum(aa) = 0;
-%
-EdgesMin = min( diffSpectrum );
-EdgesMax = max( diffSpectrum );
-% default
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%% default
 % level = 0.3
 %NBins = 20
 % NBins = 40
 noise = 0
-%
+%%%%%%%%%%%%%%%%%%%%% default
+
+%%%%%%%%%%%%%% HIST
+% min / max for hist
+EdgesMin = min( diffSpectrum );
+EdgesMax = max( diffSpectrum );
 StepBins = (EdgesMax - EdgesMin) / (NBins);
+% array of Edges
 Edges = EdgesMin : StepBins : EdgesMax;
+%
 [ HistdiffSpectrum, idx ] =  histc(diffSpectrum, Edges);
-%
+%%%%%%%%%%%%%% HIST
 [maxHistdiffSpectrum maxHistdiffSpectrumind] = max(HistdiffSpectrum);
-%
-% figure, bar(Edges, HistdiffSpectrum)
-%
+% mid
 midEdges = (Edges(maxHistdiffSpectrumind) + Edges(maxHistdiffSpectrumind+1))/2;
+% max of left - right
 midEdges = max(abs(Edges(maxHistdiffSpectrumind)), abs(Edges(maxHistdiffSpectrumind+1)));
-%
+%%%%%%% CHECK 
 if maxHistdiffSpectrum / numel(diffSpectrum) > level
   noise = abs(midEdges);
+%%%%%%%%%%%%%%  
 end
 endfunction
 
-##figure
-##hold on
-##plot(diffSpectrum)
-##plot(aa, diffSpectrum(aa), '.r')
-##
-##diffSpectrum(aa) = 0;
-##figure
-##hold on
-##plot(diffSpectrum)
+
